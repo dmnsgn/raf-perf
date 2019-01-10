@@ -1,0 +1,34 @@
+{
+  "name": "raf-perf",
+  "version": "1.0.0",
+  "description": "RAF loop with an adaptive fps and performance ratio calculated from either a sample count or a sample duration. Typically used when doing intensive graphics computation in canvas.",
+  "main": "index.js",
+  "scripts": {
+    "start": "budo demo.js --open --live"
+  },
+  "author": "Damien Seguin (https://dmnsgn.me)",
+  "license": "MIT",
+  "devDependencies": {
+    "budo": "^11.5.0"
+  },
+  "keywords": [
+    "raf",
+    "fps",
+    "adaptive",
+    "throttle",
+    "perf",
+    "performance",
+    "tick",
+    "ticker",
+    "loop",
+    "requestanimationframe"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dmnsgn/raf-perf.git"
+  },
+  "homepage": "https://github.com/dmnsgn/raf-perf",
+  "bugs": {
+    "url": "https://github.com/dmnsgn/raf-perf/issues"
+  }
+}

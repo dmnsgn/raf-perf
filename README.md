@@ -46,6 +46,12 @@ engine.on("perf", ratio => {
 });
 
 engine.start();
+
+const destroy = () => {
+  if (engine.isRunning) engine.stop();
+  engine.removeAllListeners("tick");
+  engine.removeAllListeners("perf");
+};
 ```
 
 ## API

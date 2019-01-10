@@ -6,15 +6,14 @@ class RafPerf extends EventEmitter {
 
     this.options = { ...RafPerf.defaultOptions, ...options };
 
-    // Initialise properties
     this.reset();
-    this.isVisible = true;
 
     this.tick = this.tick.bind(this);
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
   }
 
   reset() {
+    this.isVisible = true;
     this.running = false;
     this.prevTime = null;
     this.startTime = null;

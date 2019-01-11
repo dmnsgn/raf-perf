@@ -20,10 +20,8 @@ class RafPerf extends EventEmitter {
 
     this.frameDuration = RafPerf.fpsToMs(this.options.fps);
 
-    if (this.options.performances.enabled) {
-      this.performance = undefined;
-      this.perfSamples = [];
-    }
+    this.performance = undefined;
+    this.perfSamples = [];
 
     if (this.requestID) cancelAnimationFrame(this.requestID);
   }

@@ -9,7 +9,7 @@
   "author": "Damien Seguin (https://dmnsgn.me)",
   "license": "MIT",
   "devDependencies": {
-    "budo": "^11.5.0"
+    "budo": "^11.6.3"
   },
   "keywords": [
     "raf",

@@ -72,7 +72,106 @@ const destroy = () => {
 
 <!-- api-start -->
 
-Auto-generated API content.
+## Classes
+
+<dl>
+<dt><a href="#RafPerf">RafPerf</a></dt>
+<dd></dd>
+</dl>
+
+## Typedefs
+
+<dl>
+<dt><a href="#Options">Options</a> : <code>Object</code></dt>
+<dd></dd>
+<dt><a href="#OptionsPerformances">OptionsPerformances</a> : <code>Object</code></dt>
+<dd></dd>
+</dl>
+
+<a name="RafPerf"></a>
+
+## RafPerf
+
+**Kind**: global class
+
+- [RafPerf](#RafPerf)
+  - [new RafPerf([options])](#new_RafPerf_new)
+  - [.start()](#RafPerf+start)
+  - [.tick()](#RafPerf+tick)
+  - [.stop()](#RafPerf+stop)
+  - ["perf"](#RafPerf+event_perf)
+  - ["tick"](#RafPerf+event_tick)
+
+<a name="new_RafPerf_new"></a>
+
+### new RafPerf([options])
+
+Creates an instance of RafPerf.
+
+| Param     | Type                             | Default         | Description                                                                                                                                                         |
+| --------- | -------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [options] | [<code>Options</code>](#Options) | <code>{}</code> | `samplesCount` and `sampleDuration` are used concurrently. Set `sampleDuration` to a _falsy_ value if you only want to sample performances from a number of frames. |
+
+<a name="RafPerf+start"></a>
+
+### rafPerf.start()
+
+Run the `requestAnimationFrame` loop and start checking performances if `options.performances.enabled` is `true`.
+
+**Kind**: instance method of [<code>RafPerf</code>](#RafPerf)  
+<a name="RafPerf+tick"></a>
+
+### rafPerf.tick()
+
+The frame loop callback.
+
+**Kind**: instance method of [<code>RafPerf</code>](#RafPerf)  
+**Emits**: [<code>perf</code>](#RafPerf+event_perf), [<code>tick</code>](#RafPerf+event_tick)  
+<a name="RafPerf+stop"></a>
+
+### rafPerf.stop()
+
+Run `cancelAnimationFrame` if necessary and reset the engine.
+
+**Kind**: instance method of [<code>RafPerf</code>](#RafPerf)  
+<a name="RafPerf+event_perf"></a>
+
+### "perf"
+
+Event triggered when performance ratio (`this.frameDuration / averageDeltaTime`) is updated. Understand a ratio of the fps, for instance for a fps value of 24, `ratio < 0.5` means that the averaged `fps < 12` and you should probably do something about it.
+
+**Kind**: event emitted by [<code>RafPerf</code>](#RafPerf)  
+<a name="RafPerf+event_tick"></a>
+
+### "tick"
+
+Event triggered on tick, throttled by `options.fps`.
+
+**Kind**: event emitted by [<code>RafPerf</code>](#RafPerf)  
+<a name="Options"></a>
+
+## Options : <code>Object</code>
+
+**Kind**: global typedef  
+**Properties**
+
+| Name           | Type                                                     | Default                                                                 | Description           |
+| -------------- | -------------------------------------------------------- | ----------------------------------------------------------------------- | --------------------- |
+| [fps]          | <code>number</code>                                      | <code>60</code>                                                         | Throttle fps.         |
+| [performances] | [<code>OptionsPerformances</code>](#OptionsPerformances) | <code>{ enabled: true, samplesCount: 200, sampleDuration: 4000 }</code> | Performances metrics. |
+
+<a name="OptionsPerformances"></a>
+
+## OptionsPerformances : <code>Object</code>
+
+**Kind**: global typedef  
+**Properties**
+
+| Name             | Type                 | Default            | Description                                  |
+| ---------------- | -------------------- | ------------------ | -------------------------------------------- |
+| [enabled]        | <code>boolean</code> | <code>false</code> | Evaluate performances.                       |
+| [samplesCount]   | <code>number</code>  | <code>200</code>   | Number of samples to evaluate performances.  |
+| [sampleDuration] | <code>number</code>  | <code>200</code>   | Duration of sample to evaluate performances. |
 
 <!-- api-end -->
 

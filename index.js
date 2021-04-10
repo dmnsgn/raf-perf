@@ -1,10 +1,41 @@
-const EventEmitter = require("events");
+import EventEmitter from "events";
+
+/**
+ * @typedef {Object} Options
+ * @property {number} [fps=60] Throttle fps.
+ * @property {OptionsPerformances} [performances={ enabled: true, samplesCount: 200, sampleDuration: 4000 }] Performances metrics.
+ */
+
+/**
+ * @typedef {Object} OptionsPerformances
+ * @property {boolean} [enabled=false] Evaluate performances.
+ * @property {number} [samplesCount=200] Number of samples to evaluate performances.
+ * @property {number} [sampleDuration=200] Duration of sample to evaluate performances.
+ */
 
 class RafPerf extends EventEmitter {
-  constructor(options) {
+  /**
+   * Creates an instance of RafPerf.
+   *
+   * @param {Options} [options={}]
+   * `samplesCount` and `sampleDuration` are used concurrently. Set `sampleDuration` to a _falsy_ value if you only want to sample performances from a number of frames.
+   */
+  constructor(options = {}) {
     super();
 
-    this.options = { ...RafPerf.defaultOptions, ...options };
+    this.options = Object.assign(
+      {
+        fps: 60,
+        performances: {
+          enabled: true,
+          samplesCount: 200,
+          // If everything runs smoothtly, samplesCount will be used over sampleDuration
+          // 1000 ms / 60 fps * 200 samplesCount = 3333 ms
+          sampleDuration: 4000,
+        },
+      },
+      options
+    );
 
     this.reset();
 
@@ -26,6 +57,9 @@ class RafPerf extends EventEmitter {
     if (this.requestID) cancelAnimationFrame(this.requestID);
   }
 
+  /**
+   * Run the `requestAnimationFrame` loop and start checking performances if `options.performances.enabled` is `true`.
+   */
   start() {
     // Check if loop is already running
     if (this.running) return;
@@ -47,6 +81,12 @@ class RafPerf extends EventEmitter {
     this.requestID = requestAnimationFrame(this.tick);
   }
 
+  /**
+   * The frame loop callback.
+   *
+   * @fires RafPerf#perf
+   * @fires RafPerf#tick
+   */
   tick() {
     // Ensure loop is running
     if (!this.running || !this.isVisible) return;
@@ -78,6 +118,13 @@ class RafPerf extends EventEmitter {
             this.perfSamples.reduce((time, sum) => time + sum) /
             this.perfSamples.length;
           this.performance = this.frameDuration / averageDeltaTime;
+
+          /**
+           * Event triggered when performance ratio (`this.frameDuration / averageDeltaTime`) is updated. Understand a ratio of the fps, for instance for a fps value of 24, `ratio < 0.5` means that the averaged `fps < 12` and you should probably do something about it.
+           *
+           * @event RafPerf#perf
+           * @type {number} The performance ratio of frame duration against average delta time.
+           */
           this.emit("perf", this.performance);
 
           // Reset performances variables
@@ -91,13 +138,21 @@ class RafPerf extends EventEmitter {
       this.prevTime = time - (deltaTime % this.frameDuration);
       this.startTime = time;
 
-      // Call user callback function with delta time
+      /**
+       * Event triggered on tick, throttled by `options.fps`.
+       *
+       * @event RafPerf#tick
+       * @type {number} The delta since previous frame.
+       */
       this.emit("tick", frameDeltaTime);
     }
 
     this.requestID = requestAnimationFrame(this.tick);
   }
 
+  /**
+   * Run `cancelAnimationFrame` if necessary and reset the engine.
+   */
   stop() {
     document.removeEventListener(
       "visibilitychange",
@@ -119,23 +174,12 @@ class RafPerf extends EventEmitter {
 }
 
 // Static
-RafPerf.defaultOptions = {
-  fps: 60,
-  performances: {
-    enabled: true,
-    samplesCount: 200,
-    // If everything runs smoothtly, samplesCount will be used over sampleDuration
-    // 1000 ms / 60 fps * 200 samplesCount = 3333 ms
-    sampleDuration: 4000
-  }
-};
-
 RafPerf.now = () => {
   return (performance || Date).now();
 };
 
-RafPerf.fpsToMs = value => {
+RafPerf.fpsToMs = (value) => {
   return (1 / value) * 1000;
 };
 
-module.exports = RafPerf;
+export default RafPerf;

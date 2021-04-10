@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>raf-perf by Damien Seguin (https://github.com/dmnsgn)</title>
+    <style>
+      :root {
+        --color-dark: #404040;
+        --color-light: #f2f2f2;
+        --color-accent: #fd5e62;
+      }
+
+      body {
+        margin: 0;
+        overflow: hidden;
+        overscroll-behavior: none;
+        font-family: sans-serif;
+        color: var(--color-dark);
+        background-color: var(--color-light);
+      }
+
+      main {
+        padding: 0 20px;
+        max-width: 600px;
+        margin: auto;
+      }
+
+      .RectCount {
+        color: var(--color-accent);
+        font-size: 30px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>raf-perf</h1>
+      <p class="RectCount"></p>
+    </main>
+    <script async src="web_modules/es-module-shims.js"></script>
+    <script src="web_modules/import-map.json" type="importmap"></script>
+
+    <script type="module">
+      import RafPerf from "./index.js";
+      import createCanvasContext from "canvas-context";
+
+      const { context, canvas } = createCanvasContext("2d", {
+        width: 600,
+        height: 600,
+        alpha: false,
+      });
+      document.querySelector("main").appendChild(canvas);
+
+      const maxRectCount = 580;
+      let rectCount = maxRectCount;
+      const RectCountElement = document.querySelector(".RectCount");
+
+      const engine = new RafPerf();
+
+      const color = window
+        .getComputedStyle(document.documentElement)
+        .getPropertyValue("--color-accent");
+
+      engine.on("tick", (dt) => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = 0; i < rectCount; i++) {
+          context.shadowColor = color;
+          context.shadowBlur = 30;
+
+          context.fillStyle = color;
+          context.fillRect(40 + i * 0.5, 40 + i * 0.5, 200, 100);
+        }
+        RectCountElement.innerText = `${rectCount} rect with shadowBlur`;
+      });
+
+      engine.on("perf", (ratio) => {
+        if (!ratio) return;
+
+        console.log(`Performance ratio: ${ratio}`);
+
+        if (ratio < 0.9) {
+          console.log("Too many draws");
+          rectCount -= 10;
+        } else if (ratio >= 0.9 && rectCount < maxRectCount) {
+          console.log("Draw more");
+          rectCount += 5;
+        }
+      });
+
+      engine.start();
+    </script>
+  </body>
+</html>

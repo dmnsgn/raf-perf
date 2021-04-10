@@ -2,15 +2,6 @@
   "name": "raf-perf",
   "version": "1.2.0",
   "description": "RAF loop with an adaptive fps and performance ratio calculated from either a sample count or a sample duration. Typically used when doing intensive graphics computation in canvas.",
-  "main": "index.js",
-  "scripts": {
-    "start": "budo demo.js --open --live"
-  },
-  "author": "Damien Seguin (https://dmnsgn.me)",
-  "license": "MIT",
-  "devDependencies": {
-    "budo": "^11.6.3"
-  },
   "keywords": [
     "raf",
     "fps",
@@ -23,12 +14,34 @@
     "loop",
     "requestanimationframe"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/dmnsgn/raf-perf.git"
-  },
   "homepage": "https://github.com/dmnsgn/raf-perf",
-  "bugs": {
-    "url": "https://github.com/dmnsgn/raf-perf/issues"
+  "bugs": "https://github.com/dmnsgn/raf-perf/issues",
+  "repository": "dmnsgn/raf-perf",
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://paypal.me/dmnsgn"
+    },
+    {
+      "type": "individual",
+      "url": "https://commerce.coinbase.com/checkout/56cbdf28-e323-48d8-9c98-7019e72c97f3"
+    }
+  ],
+  "license": "MIT",
+  "author": "Damien Seguin (https://github.com/dmnsgn)",
+  "sideEffects": false,
+  "type": "module",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "dependencies": {
+    "events": "^3.3.0"
+  },
+  "devDependencies": {
+    "canvas-context": "^3.0.1",
+    "es-module-shims": "^0.10.3"
+  },
+  "engines": {
+    "node": ">=15.0.0",
+    "npm": ">=7.0.0"
   }
 }

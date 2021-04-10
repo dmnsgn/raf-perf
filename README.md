@@ -1,11 +1,22 @@
-# raf-perf [![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
+# raf-perf
 
-[![npm version](https://badge.fury.io/js/raf-perf.svg)](https://www.npmjs.com/package/raf-perf)
-[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![npm version](https://img.shields.io/npm/v/raf-perf)](https://www.npmjs.com/package/raf-perf)
+[![stability-stable](https://img.shields.io/badge/stability-stable-green.svg)](https://www.npmjs.com/package/raf-perf)
+[![npm minzipped size](https://img.shields.io/bundlephobia/minzip/raf-perf)](https://www.npmjs.com/package/raf-perf)
+[![dependencies](https://img.shields.io/david/dmnsgn/raf-perf)](https://github.com/dmnsgn/raf-perf/blob/main/package.json)
+[![types](https://img.shields.io/npm/types/raf-perf)](https://github.com/microsoft/TypeScript)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-fa6673.svg)](https://conventionalcommits.org)
+[![styled with prettier](https://img.shields.io/badge/styled_with-Prettier-f8bc45.svg?logo=prettier)](https://github.com/prettier/prettier)
+[![linted with eslint](https://img.shields.io/badge/linted_with-ES_Lint-4B32C3.svg?logo=eslint)](https://github.com/eslint/eslint)
+[![license](https://img.shields.io/github/license/dmnsgn/raf-perf)](https://github.com/dmnsgn/raf-perf/blob/main/LICENSE.md)
 
 RAF loop with an adaptive fps and performance ratio calculated from either a sample count or a sample duration. Typically used when doing intensive graphics computation in canvas.
 
-![](https://raw.githubusercontent.com/dmnsgn/raf-perf/master/screenshot.gif)
+[![paypal](https://img.shields.io/badge/donate-paypal-informational?logo=paypal)](https://paypal.me/dmnsgn)
+[![coinbase](https://img.shields.io/badge/donate-coinbase-informational?logo=coinbase)](https://commerce.coinbase.com/checkout/56cbdf28-e323-48d8-9c98-7019e72c97f3)
+[![twitter](https://img.shields.io/twitter/follow/dmnsgn?style=social)](https://twitter.com/dmnsgn)
+
+![](https://raw.githubusercontent.com/dmnsgn/raf-perf/main/screenshot.gif)
 
 ## Installation
 
@@ -13,19 +24,22 @@ RAF loop with an adaptive fps and performance ratio calculated from either a sam
 npm install raf-perf
 ```
 
-[![NPM](https://nodei.co/npm/raf-perf.png)](https://nodei.co/npm/raf-perf/)
-
 ## Usage
 
 ```js
-const RafPerf = require("raf-perf");
+import RafPerf from "raf-perf";
+import createCanvasContext from "canvas-context";
 
-const canvas = document.createElement("canvas");
-const context = canvas.getContext("2d");
+const { context, canvas } = createCanvasContext("2d", {
+  width: window.innerWidth,
+  height: window.innerHeight,
+  offscreen: true,
+});
+document.body.appendChild(canvas);
 
 const engine = new RafPerf();
 
-engine.on("tick", dt => {
+engine.on("tick", (dt) => {
   // Clear
   context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -33,7 +47,7 @@ engine.on("tick", dt => {
   // ...
 });
 
-engine.on("perf", ratio => {
+engine.on("perf", (ratio) => {
   if (!ratio) return;
 
   console.log(`Performance ratio: ${ratio}`);
@@ -56,33 +70,12 @@ const destroy = () => {
 
 ## API
 
-### `const engine = new RafPerf(options)`
+<!-- api-start -->
 
-| Option                                  | Type     | Default | Description                                 |
-| --------------------------------------- | -------- | ------- | ------------------------------------------- |
-| **options.fps**                         | number?  | 60      | Throttle fps                                |
-| **options.performances.enabled**        | boolean? | true    | Evaluate performances                       |
-| **options.performances.samplesCount**   | number?  | 200     | Number of samples to evaluate performances  |
-| **options.performances.sampleDuration** | number?  | 4000    | Duration of sample to evaluate performances |
+Auto-generated API content.
 
-`samplesCount` and `sampleDuration` are used concurrently. Set `sampleDuration` to a _falsy_ value if you only want to sample performances only from a number of frames.
-
-### `engine.start()`
-
-Run the `requestAnimationFrame` loop and start checking performances if `options.performances.enabled` is `true`.
-
-### `engine.stop()`
-
-Run `cancelAnimationFrame` if necessary and reset the engine.
-
-### `engine.on("tick", (dt: number) => void)`
-
-Event triggered on tick, throttled by `options.fps`.
-
-### `engine.on("perf", (ratio: number) => void)`
-
-Event triggered when performance ratio (`this.frameDuration / averageDeltaTime`) is updated. Understand a ratio of the fps, for instance for a fps value of 24, `ratio < 0.5` means that the averaged `fps < 12` and you should probably do something about it.
+<!-- api-end -->
 
 ## License
 
-MIT. See [license file](https://github.com/dmnsgn/raf-perf/blob/master/LICENSE.md).
+MIT. See [license file](https://github.com/dmnsgn/raf-perf/blob/main/LICENSE.md).

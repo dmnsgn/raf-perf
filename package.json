@@ -1,6 +1,6 @@
 {
   "name": "raf-perf",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "RAF loop with an adaptive fps and performance ratio calculated from either a sample count or a sample duration. Typically used when doing intensive graphics computation in canvas.",
   "keywords": [
     "raf",

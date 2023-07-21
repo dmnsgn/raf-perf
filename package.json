@@ -33,10 +33,7 @@
   "type": "module",
   "exports": "./index.js",
   "main": "index.js",
-  "types": "types/index.d.ts",
-  "dependencies": {
-    "events": "^3.3.0"
-  },
+  "types": "index.d.ts",
   "devDependencies": {
     "canvas-context": "^3.0.1",
     "es-module-shims": "^0.10.3"

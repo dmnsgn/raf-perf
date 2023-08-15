@@ -1,19 +1,34 @@
-import EventEmitter from "events";
-
 /**
- * @typedef {Object} Options
+ * @typedef {object} Options
  * @property {number} [fps=60] Throttle fps.
  * @property {OptionsPerformances} [performances={ enabled: true, samplesCount: 200, sampleDuration: 4000 }] Performances metrics.
  */
 
 /**
- * @typedef {Object} OptionsPerformances
- * @property {boolean} [enabled=false] Evaluate performances.
+ * @typedef {object} OptionsPerformances
+ * @property {boolean} [enabled=true] Evaluate performances.
  * @property {number} [samplesCount=200] Number of samples to evaluate performances.
- * @property {number} [sampleDuration=200] Duration of sample to evaluate performances.
+ * @property {number} [sampleDuration=4000] Duration of sample to evaluate performances.
  */
 
-class RafPerf extends EventEmitter {
+class RafPerf {
+  /**
+   * @type {string}
+   */
+  static TickEvent = "tick";
+  /**
+   * @type {string}
+   */
+  static PerfEvent = "perf";
+
+  static now() {
+    return (performance || Date).now();
+  }
+
+  static fpsToMs(value) {
+    return (1 / value) * 1000;
+  }
+
   /**
    * Creates an instance of RafPerf.
    *
@@ -21,8 +36,6 @@ class RafPerf extends EventEmitter {
    * `samplesCount` and `sampleDuration` are used concurrently. Set `sampleDuration` to a _falsy_ value if you only want to sample performances from a number of frames.
    */
   constructor(options = {}) {
-    super();
-
     this.options = Object.assign(
       {
         fps: 60,
@@ -34,8 +47,10 @@ class RafPerf extends EventEmitter {
           sampleDuration: 4000,
         },
       },
-      options
+      options,
     );
+
+    this.events = {};
 
     this.reset();
 
@@ -74,7 +89,7 @@ class RafPerf extends EventEmitter {
     document.addEventListener(
       "visibilitychange",
       this.onVisibilityChange,
-      false
+      false,
     );
 
     // Start ticking
@@ -84,8 +99,8 @@ class RafPerf extends EventEmitter {
   /**
    * The frame loop callback.
    *
-   * @fires RafPerf#perf
-   * @fires RafPerf#tick
+   * @fires RafPerf.PerfEvent
+   * @fires RafPerf.TickEvent
    */
   tick() {
     // Ensure loop is running
@@ -122,10 +137,10 @@ class RafPerf extends EventEmitter {
           /**
            * Event triggered when performance ratio (`this.frameDuration / averageDeltaTime`) is updated. Understand a ratio of the fps, for instance for a fps value of 24, `ratio < 0.5` means that the averaged `fps < 12` and you should probably do something about it.
            *
-           * @event RafPerf#perf
+           * @event "perf"
            * @type {number} The performance ratio of frame duration against average delta time.
            */
-          this.emit("perf", this.performance);
+          this.emit(RafPerf.PerfEvent, this.performance);
 
           // Reset performances variables
           this.perfSamples = [];
@@ -141,10 +156,10 @@ class RafPerf extends EventEmitter {
       /**
        * Event triggered on tick, throttled by `options.fps`.
        *
-       * @event RafPerf#tick
+       * @event "tick"
        * @type {number} The delta since previous frame.
        */
-      this.emit("tick", frameDeltaTime);
+      this.emit(RafPerf.TickEvent, frameDeltaTime);
     }
 
     this.requestID = requestAnimationFrame(this.tick);
@@ -157,10 +172,26 @@ class RafPerf extends EventEmitter {
     document.removeEventListener(
       "visibilitychange",
       this.onVisibilityChange,
-      false
+      false,
     );
 
     this.reset();
+  }
+
+  /**
+   * Add "perf" and "tick" listeners.
+   * @param {string} type
+   * @param {Function} cb
+   * @returns {Function} Call the return value to unsubscribe.
+   */
+  on(type, cb) {
+    this.events[type] ||= new Set();
+    this.events[type].add(cb);
+    return () => this.events[type]?.delete(cb);
+  }
+
+  emit(type, ...args) {
+    this.events[type]?.forEach((cb) => cb(...args));
   }
 
   onVisibilityChange() {
@@ -172,14 +203,5 @@ class RafPerf extends EventEmitter {
     }
   }
 }
-
-// Static
-RafPerf.now = () => {
-  return (performance || Date).now();
-};
-
-RafPerf.fpsToMs = (value) => {
-  return (1 / value) * 1000;
-};
 
 export default RafPerf;

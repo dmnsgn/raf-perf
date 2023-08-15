@@ -39,7 +39,7 @@ document.body.appendChild(canvas);
 
 const engine = new RafPerf();
 
-engine.on("tick", (dt) => {
+const offTick = engine.on("tick", (dt) => {
   // Clear
   context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -47,7 +47,7 @@ engine.on("tick", (dt) => {
   // ...
 });
 
-engine.on("perf", (ratio) => {
+const offPerf = engine.on("perf", (ratio) => {
   if (!ratio) return;
 
   console.log(`Performance ratio: ${ratio}`);
@@ -63,8 +63,8 @@ engine.start();
 
 const destroy = () => {
   if (engine.isRunning) engine.stop();
-  engine.removeAllListeners("tick");
-  engine.removeAllListeners("perf");
+  offTick();
+  offPerf();
 };
 ```
 

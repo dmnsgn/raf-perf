@@ -39,54 +39,68 @@
       <h1>raf-perf</h1>
       <p class="RectCount"></p>
     </main>
-    <script async src="web_modules/es-module-shims.js"></script>
-    <script src="web_modules/import-map.json" type="importmap"></script>
+    <script async src="web_modules/es-module-shims.js" type="module"></script>
+    <script src="web_modules/import-map.json" type="importmap-shim"></script>
 
-    <script type="module">
+    <script type="module-shim">
       import RafPerf from "./index.js";
       import createCanvasContext from "canvas-context";
 
+      const width = 600;
       const { context, canvas } = createCanvasContext("2d", {
-        width: 600,
+        width,
         height: 600,
         alpha: false,
       });
       document.querySelector("main").appendChild(canvas);
 
-      const maxRectCount = 580;
-      let rectCount = maxRectCount;
+      const maxRectCount = 4500;
+      let rectCount = maxRectCount / 2;
       const RectCountElement = document.querySelector(".RectCount");
 
-      const engine = new RafPerf();
+      const engine = new RafPerf({
+        // fps: 120,
+        performances: {
+          enabled: true,
+          samplesCount: 200,
+          sampleDuration: 4000,
+        },
+      });
 
       const color = window
         .getComputedStyle(document.documentElement)
         .getPropertyValue("--color-accent");
 
-      engine.on("tick", (dt) => {
+      engine.on(RafPerf.TickEvent, (dt) => {
         context.clearRect(0, 0, canvas.width, canvas.height);
 
         for (let i = 0; i < rectCount; i++) {
           context.shadowColor = color;
-          context.shadowBlur = 30;
+          context.shadowBlur = 10;
 
           context.fillStyle = color;
-          context.fillRect(40 + i * 0.5, 40 + i * 0.5, 200, 100);
+          context.fillRect(
+            40 + (i % width) * 0.5,
+            40 + Math.floor(i / width) * 10,
+            200,
+            5
+          );
         }
+
         RectCountElement.innerText = `${rectCount} rect with shadowBlur`;
       });
 
-      engine.on("perf", (ratio) => {
+      engine.on(RafPerf.PerfEvent, (ratio) => {
         if (!ratio) return;
 
         console.log(`Performance ratio: ${ratio}`);
 
         if (ratio < 0.9) {
           console.log("Too many draws");
-          rectCount -= 10;
+          rectCount -= 50;
         } else if (ratio >= 0.9 && rectCount < maxRectCount) {
           console.log("Draw more");
-          rectCount += 5;
+          rectCount += 100;
         }
       });
 

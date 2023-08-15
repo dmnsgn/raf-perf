@@ -1,26 +1,41 @@
-export const PerfEventType = 'perf';
-/** @type {import('./index').PerfEvent} */
-class PerfEvent extends Event {
-  constructor() {
-    super(PerfEventType);
-    this.ratio = 0;
-  }
-}
+/**
+ * @typedef {object} Options
+ * @property {number} [fps=60] Throttle fps.
+ * @property {OptionsPerformances} [performances={ enabled: true, samplesCount: 200, sampleDuration: 4000 }] Performances metrics.
+ */
 
-export const TickEventType = 'tick';
-/** @type {import('./index').TickEvent} */
-class TickEvent extends Event {
-  constructor() {
-    super(TickEventType);
-    this.timeDelta = 0;
-  }
-}
+/**
+ * @typedef {object} OptionsPerformances
+ * @property {boolean} [enabled=true] Evaluate performances.
+ * @property {number} [samplesCount=200] Number of samples to evaluate performances.
+ * @property {number} [sampleDuration=4000] Duration of sample to evaluate performances.
+ */
 
-/** @type {import('./index').default} */
-export default class RafPerf extends EventTarget {
+class RafPerf {
+  /**
+   * @type {string}
+   */
+  static TickEvent = "tick";
+  /**
+   * @type {string}
+   */
+  static PerfEvent = "perf";
+
+  static now() {
+    return (performance || Date).now();
+  }
+
+  static fpsToMs(value) {
+    return (1 / value) * 1000;
+  }
+
+  /**
+   * Creates an instance of RafPerf.
+   *
+   * @param {Options} [options={}]
+   * `samplesCount` and `sampleDuration` are used concurrently. Set `sampleDuration` to a _falsy_ value if you only want to sample performances from a number of frames.
+   */
   constructor(options = {}) {
-    super();
-
     this.options = Object.assign(
       {
         fps: 60,
@@ -32,8 +47,10 @@ export default class RafPerf extends EventTarget {
           sampleDuration: 4000,
         },
       },
-      options
+      options,
     );
+
+    this.events = {};
 
     this.reset();
 
@@ -55,6 +72,9 @@ export default class RafPerf extends EventTarget {
     if (this.requestID) cancelAnimationFrame(this.requestID);
   }
 
+  /**
+   * Run the `requestAnimationFrame` loop and start checking performances if `options.performances.enabled` is `true`.
+   */
   start() {
     // Check if loop is already running
     if (this.running) return;
@@ -69,13 +89,19 @@ export default class RafPerf extends EventTarget {
     document.addEventListener(
       "visibilitychange",
       this.onVisibilityChange,
-      false
+      false,
     );
 
     // Start ticking
     this.requestID = requestAnimationFrame(this.tick);
   }
 
+  /**
+   * The frame loop callback.
+   *
+   * @fires RafPerf.PerfEvent
+   * @fires RafPerf.TickEvent
+   */
   tick() {
     // Ensure loop is running
     if (!this.running || !this.isVisible) return;
@@ -108,8 +134,13 @@ export default class RafPerf extends EventTarget {
             this.perfSamples.length;
           this.performance = this.frameDuration / averageDeltaTime;
 
-          RafPerf.PerfEvent.ratio = this.performance;
-          this.dispatchEvent(RafPerf.PerfEvent);
+          /**
+           * Event triggered when performance ratio (`this.frameDuration / averageDeltaTime`) is updated. Understand a ratio of the fps, for instance for a fps value of 24, `ratio < 0.5` means that the averaged `fps < 12` and you should probably do something about it.
+           *
+           * @event "perf"
+           * @type {number} The performance ratio of frame duration against average delta time.
+           */
+          this.emit(RafPerf.PerfEvent, this.performance);
 
           // Reset performances variables
           this.perfSamples = [];
@@ -122,21 +153,45 @@ export default class RafPerf extends EventTarget {
       this.prevTime = time - (deltaTime % this.frameDuration);
       this.startTime = time;
 
-      RafPerf.TickEvent.timeDelta = frameDeltaTime;
-      this.emit(RafPerf.TickEvent);
+      /**
+       * Event triggered on tick, throttled by `options.fps`.
+       *
+       * @event "tick"
+       * @type {number} The delta since previous frame.
+       */
+      this.emit(RafPerf.TickEvent, frameDeltaTime);
     }
 
     this.requestID = requestAnimationFrame(this.tick);
   }
 
+  /**
+   * Run `cancelAnimationFrame` if necessary and reset the engine.
+   */
   stop() {
     document.removeEventListener(
       "visibilitychange",
       this.onVisibilityChange,
-      false
+      false,
     );
 
     this.reset();
+  }
+
+  /**
+   * Add "perf" and "tick" listeners.
+   * @param {string} type
+   * @param {Function} cb
+   * @returns {Function} Call the return value to unsubscribe.
+   */
+  on(type, cb) {
+    this.events[type] ||= new Set();
+    this.events[type].add(cb);
+    return () => this.events[type]?.delete(cb);
+  }
+
+  emit(type, ...args) {
+    this.events[type]?.forEach((cb) => cb(...args));
   }
 
   onVisibilityChange() {
@@ -149,15 +204,4 @@ export default class RafPerf extends EventTarget {
   }
 }
 
-// Static
-RafPerf.now = function now() {
-  return (performance || Date).now();
-}
-
-RafPerf.fpsToMs = function fpsToMs(value) {
-  return 1000 / value;
-}
-
-RafPerf.PerfEvent = new PerfEvent();
-
-RafPerf.TickEvent = new TickEvent();
+export default RafPerf;

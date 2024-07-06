@@ -1,6 +1,6 @@
 {
   "name": "raf-perf",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "RAF loop with an adaptive fps and performance ratio calculated from either a sample count or a sample duration. Typically used when doing intensive graphics computation in canvas.",
   "keywords": [
     "raf",
@@ -16,7 +16,10 @@
   ],
   "homepage": "https://github.com/dmnsgn/raf-perf",
   "bugs": "https://github.com/dmnsgn/raf-perf/issues",
-  "repository": "dmnsgn/raf-perf",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmnsgn/raf-perf.git"
+  },
   "funding": [
     {
       "type": "individual",

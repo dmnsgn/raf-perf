@@ -36,7 +36,7 @@
   "types": "types/index.d.ts",
   "devDependencies": {
     "canvas-context": "^3.2.0",
-    "es-module-shims": "^1.8.0"
+    "es-module-shims": "^1.10.0"
   },
   "engines": {
     "node": ">=18.0.0",

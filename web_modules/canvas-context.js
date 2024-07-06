@@ -21,7 +21,7 @@
     if (contextType === void 0) contextType = "2d";
     if (options === void 0) options = {};
     // Get options and set defaults
-    const { width , height , offscreen =false , worker =false , contextAttributes ={}  } = {
+    const { width, height, offscreen = false, worker = false, contextAttributes = {} } = {
         ...options
     };
     // Check contextType is valid
